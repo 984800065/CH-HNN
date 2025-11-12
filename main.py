@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import json
 from utils import *
 import argparse
 import os
@@ -205,6 +206,9 @@ elif args.si:
                 p_old[n] = p.data.clone()
 
 weight_plot=0
+dkr_results = {
+    "last_acc_list_per_stage": {},
+}
 for task_idx, task in enumerate(train_loader_list):
     logger.info('task_idx: {}', task_idx)
     # generate parameters for training
@@ -239,7 +243,12 @@ for task_idx, task in enumerate(train_loader_list):
         if 'n' in args.norm:
             current_bn_state = model.save_bn_states()#every task use the same BN parameters(including mean and variance)
         logger.info("Evaluating...")
+        tmp_last_acc_list = []
         for other_task_idx, other_task in enumerate(test_loader_list):
+            if other_task_idx > task_idx:
+                break
+
+            logger.info(f'other_task_idx: {other_task_idx}')
             if epoch==args.epochs_per_task:
                 gate_test = get_gate(args, gate, other_task_idx, device, 'test')
                 if 'n' in args.norm and args.load_bn:
@@ -261,7 +270,12 @@ for task_idx, task in enumerate(train_loader_list):
                 # data['acc_test_taw_tsk_'+str(other_task_idx+1)].append(test_accuracy_taw)
 
             data['acc_test_tsk_'+str(other_task_idx+1)].append(test_accuracy_tag)
+            tmp_last_acc_list.append(test_accuracy_tag)
             data['loss_test_tsk_'+str(other_task_idx+1)].append(test_loss)
+        
+        dkr_results["last_acc_list_per_stage"][f"step_{task_idx + 1}"] = tmp_last_acc_list
+    logger.info(f'last_acc_list_step_{task_idx + 1}: {dkr_results}')
+        
     if 'n' in args.norm:
         bn_states.append(current_bn_state)
         if args.track_BN_stat and args.reset_BN:
@@ -298,8 +312,25 @@ if args.save_model:
     torch.save(model, path+'/'+time+'_SNN.pt')
     if args.norm=='bn' and args.track_BN_stat:
         torch.save(bn_states, path+'/'+time+'_BatchNorm_state.pth')
-df_data = pd.DataFrame(data)
-# plot_results(df_data, path, length=len(test_loader_list), args=args, save=args.save)
 
-if args.save:
-    df_data.to_csv(path +'/'+time+name+'.csv', index = False)
+# df_data = pd.DataFrame(data)
+# # plot_results(df_data, path, length=len(test_loader_list), args=args, save=args.save)
+
+# if args.save:
+#     df_data.to_csv(path +'/'+time+name+'.csv', index = False)
+
+dkr_results["avg_acc"] = []
+for task_idx in range(len(train_loader_list)):
+    dkr_results["avg_acc"].append(np.mean(dkr_results["last_acc_list_per_stage"][f"step_{task_idx + 1}"]))
+
+dkr_results["avg_acc_mean"] = np.mean(dkr_results["avg_acc"])
+
+dkr_results["last_acc"] = dkr_results["last_acc_list_per_stage"][f"step_{len(train_loader_list)}"]
+dkr_results["last_acc_mean"] = np.mean(dkr_results["last_acc"])
+
+json.dump(
+    dkr_results,
+    open(path + f"/final_results_si_{args.dataset}_step_{len(train_loader_list)}.json", 'w'),
+    indent=4,
+    ensure_ascii=False
+)
