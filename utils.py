@@ -10,6 +10,7 @@ from torch.utils.data.dataset import ConcatDataset
 import copy
 import spikingjelly.clock_driven.encoding as encoding
 import tonic
+from logger_config import logger
 
 probs = 0.0 
 v_th_scales = 0.2
@@ -640,8 +641,7 @@ def test(model, ann, test_loader, current_task_index, device, args, gate, verbos
         test_loss /= len(test_loader.dataset)
         test_acc_tag = round( 100. * total_acc_tag / len(test_loader.dataset), 2)
     if verbose :        
-        print('Test accuracy Tag: ({:.2f}%)'.format(
-            test_acc_tag))
+        logger.info('Test accuracy Tag: ({:.2f}%)', test_acc_tag)
     
     return test_acc_tag, test_loss
 
@@ -714,7 +714,7 @@ def collate_fn(batch):
     return data_padded, labels
 
 def create_dataset(args):
-    print('Creating dataset...')
+    logger.info('Creating dataset...')
     train_loader_list=[]
     test_loader_list=[]
     dset_train_list=[]
@@ -1025,7 +1025,7 @@ def update_omega(model, omega, p_prev, W, epsilon=0.1):
                 p_change = p_current - p_prev[n]
                 omega_add = W[n]/(p_change**2 + epsilon)
                 omega[n] += omega_add
-                print('parameter :\t', n, '\nomega :\t', omega[n])
+                logger.info('parameter :\t{}\nomega :\t{}', n, omega[n])
                 W[n] = p.data.clone().zero_()
     return omega
 
@@ -1101,7 +1101,7 @@ def gate_load(args, device, gate_prob=0.5):
             for j in range(hidden_layers):
                 tmp=random.sample(list(range(0,hidden_neuron)),choose_neuron[i])
                 gate[i,tmp,j]=1
-        print('The probability of gate=1 is', np.sum(gate[0,:,0]==1)/len(gate[0,:,0]))
+        logger.info('The probability of gate=1 is {}', np.sum(gate[0,:,0]==1)/len(gate[0,:,0]))
     elif args.gate:
         if args.class_per_task==1:
             meta_ann_10 = np.load(args.meta_path+'/modulation_signal_for_training_SNN.npy',allow_pickle=True)

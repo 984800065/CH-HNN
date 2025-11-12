@@ -13,6 +13,9 @@ from model import *
 from utils import createHyperparametersFile
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
+import sys
+sys.path.append('..')
+from logger_config import logger
 
 import dataset_cifar100 as dataset
 import utils_cifar100 as utils
@@ -61,7 +64,7 @@ s_writer = SummaryWriter(args.root_path + '/runs')
 
 def create_folders():
     if (os.path.exists(args.root_path)):
-        print('alreadly exist')
+        logger.info('alreadly exist')
         os.system('rm -r {}'.format(args.root_path))
 
     os.mkdir(args.root_path)
@@ -170,7 +173,7 @@ def train_ann_task(gate_net, meta={}, root_path='try'):
             data_loader_test = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 
 
-            print('stage_1:-------------------')
+            logger.info('stage_1:-------------------')
             train_ann_epoch(gate_net, data_loader_train,  optimizer_aux, task_similarity_matrix)
             plot_parameters(gate_net, root_path, i, weight_plot)# plot hidden weights of model
             test_gate = test_task(gate_net, data_loader_test)
@@ -196,7 +199,7 @@ def train_ann_epoch(gate_net, data_loader_train,  optimizer_aux, task_similarity
         for p in optimizer_aux.param_groups:
             p['lr'] = lr
 
-        print('\nEpoch: %d,lr: %.5f' % (epoch, lr))
+        logger.info('\nEpoch: {}, lr: {:.5f}', epoch, lr)
         train_loss = 0
         loss_1_cum = 0
         loss_2_cum = 0
@@ -248,8 +251,8 @@ def train_ann_epoch(gate_net, data_loader_train,  optimizer_aux, task_similarity
             total += targets.size(0)
             indicator = int(len(data_loader_train) / 3)
             if ((batch_idx + 1) % indicator == 0):
-                print('total loss:{:.3f}= loss_1:{:.3f},loss_2:{:.3f}'.format(
-                    train_loss/(batch_idx+1), loss_1_cum/(batch_idx+1), loss_2_cum/(batch_idx+1)))
+                logger.info('total loss:{:.3f}= loss_1:{:.3f},loss_2:{:.3f}',
+                    train_loss/(batch_idx+1), loss_1_cum/(batch_idx+1), loss_2_cum/(batch_idx+1))
 
         s_writer.add_scalar('total_loss', train_loss/(batch_idx+1), epoch)
         s_writer.add_scalar('simlarity_loss', loss_1_cum/(batch_idx+1), epoch)
@@ -257,7 +260,7 @@ def train_ann_epoch(gate_net, data_loader_train,  optimizer_aux, task_similarity
 
 
 def test_task(gate_net, data_loader_test):
-    print('testing-------------------------------------')
+    logger.info('testing-------------------------------------')
 
     def unfold(gate):
         gate = [np.concatenate(item, axis=1) for item in gate]
@@ -271,7 +274,7 @@ def test_task(gate_net, data_loader_test):
 
     gates = unfold(gates)
     gates = gates[index]
-    print('gates:', gates.shape)
+    logger.info('gates: {}', gates.shape)
     if len(gates)==20000:
         gates_0 = gates[:10000]
         gates_1 = gates[10000:]
@@ -286,7 +289,7 @@ def test_task(gate_net, data_loader_test):
         elif args.dataset[0]=="cifar100":
             gates = gates.reshape(100, 100, -1, args.n_value)
         gates = np.mean(gates, axis=1)
-    print('gates:', gates.shape)
+    logger.info('gates: {}', gates.shape)
     return gates
 
 
@@ -294,7 +297,7 @@ def test_epoch(gate_net, data_loader_test):
     gate_net.eval()
     gates_list = []
     targets_list = []
-    print('dataloader:', len(data_loader_test))
+    logger.info('dataloader: {}', len(data_loader_test))
     for batch_idx, (inputs, targets) in enumerate(data_loader_test):
         inputs, targets = inputs.cuda(), targets.cuda()
         inputs = inputs.reshape(inputs.size(0), -1)
@@ -307,12 +310,12 @@ def test_epoch(gate_net, data_loader_test):
 
 def print_args(args):
     dict = vars(args)
-    print('arguments:--------------------------')
+    logger.info('arguments:--------------------------')
     with open(args.root_path+'/arguments.txt', 'w') as f:
         for key in dict.keys():
-            print(key, dict[key])
+            logger.info('{}: {}', key, dict[key])
             f.write(key+' '+str(dict[key])+'\n')
-    print('-----------------------------------')
+    logger.info('-----------------------------------')
 
 def plot_ms_correlation(modulation_signal_for_snn,idx):
     for i in range(modulation_signal_for_snn.shape[-1]):
@@ -328,15 +331,15 @@ def plot_ms_correlation(modulation_signal_for_snn,idx):
         plt.close()
 
 def main():
-    print(args.root_path)
+    logger.info('{}', args.root_path)
     create_folders()
     print_args(args)
-    print('--------pre_task---------')
+    logger.info('--------pre_task---------')
 
     gate_net = get_gate_net()
     # for n,p in (gate_net.named_parameters()):
-    #     print(n,p.shape)
-    print('--------train_task---------')
+    #     logger.info('{}: {}', n, p.shape)
+    logger.info('--------train_task---------')
     meta = {}
     for n, p in gate_net.named_parameters():
         if ('l'in n):

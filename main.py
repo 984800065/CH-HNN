@@ -5,7 +5,8 @@ import argparse
 import os
 import pandas as pd
 from datetime import datetime
-import random 
+import random
+from logger_config import logger 
 
 parser = argparse.ArgumentParser(description='CH-HNN learning rules.')
 
@@ -84,10 +85,10 @@ os.environ['CUDA_VISIBLE_DEVICES'] = str(args.device)
 args.task_offset = [0]
 if args.dataset=='pMNIST':
     args.task_sequence = args.task_sequence*args.task_num
-    print('task_sequence:', args.task_sequence)
+    logger.info('task_sequence: {}', args.task_sequence)
 else:
     args.task_sequence+=[args.class_per_task for i in range(args.task_num)]
-    print('task_sequence:', args.task_sequence)
+    logger.info('task_sequence: {}', args.task_sequence)
     if args.dataset=='cifar100':    
         assert np.sum(args.task_sequence)==100, "Tasks do not contain all the data in the CIFAR100!"
         args.out_size=100
@@ -143,8 +144,8 @@ elif args.net=='ann':
 model = model.to(device)
 
 train_loader_list, test_loader_list, dset_train_list = create_dataset(args)
-print('task_offset:', args.task_offset)
-print('train_loader_list:', len(train_loader_list))
+logger.info('task_offset: {}', args.task_offset)
+logger.info('train_loader_list: {}', len(train_loader_list))
 lrs = [args.lr*(args.gamma**(-i)) for i in range(len(train_loader_list))]
 
 # Data collect initialisation
@@ -205,7 +206,7 @@ elif args.si:
 
 weight_plot=0
 for task_idx, task in enumerate(train_loader_list):
-    print('task_idx:', task_idx)
+    logger.info('task_idx: {}', task_idx)
     # generate parameters for training
     if args.scenario=='class-incre' and args.type_of_head=='head':
         model.add_head(args.task_sequence[task_idx])
@@ -228,8 +229,8 @@ for task_idx, task in enumerate(train_loader_list):
         data['ewc'].append(ewc_lambda)
         data['SI'].append(si_lambda)
         train_accuracy_tag, train_loss = test(model, ann_trained, task, task_idx, device, args, gate=gate_train, verbose=True)
-        print('Task idx:', task_idx, 'Epoch:', epoch, 'Train Accuracy Tag:', 
-              train_accuracy_tag, 'Train Loss:', train_loss)
+        logger.info('Task idx: {}, Epoch: {}, Train Accuracy Tag: {}, Train Loss: {}', 
+              task_idx, epoch, train_accuracy_tag, train_loss)
         
         # data['acc_tr_taw'].append(train_accuracy_taw)
         data['acc_tr_tag'].append(train_accuracy_tag)
@@ -237,7 +238,7 @@ for task_idx, task in enumerate(train_loader_list):
 
         if 'n' in args.norm:
             current_bn_state = model.save_bn_states()#every task use the same BN parameters(including mean and variance)
-        print("Evaluating...")
+        logger.info("Evaluating...")
         for other_task_idx, other_task in enumerate(test_loader_list):
             if epoch==args.epochs_per_task:
                 gate_test = get_gate(args, gate, other_task_idx, device, 'test')

@@ -2,6 +2,9 @@ import os
 from multiprocessing import Process
 import time
 import numpy as np
+import sys
+sys.path.append('..')
+from logger_config import logger
 
 gpu_list=[1,2]
 
@@ -42,7 +45,7 @@ def generate_gate_continue():
                             cmd+='--test_task_num '
                             for m in range(len(class_num)):
                                 cmd+='{} '.format(class_num[m])
-                            print(cmd)
+                            logger.info('{}', cmd)
                             p = Process(target=exe, args=(cmd,))
                             p.start()
                             time.sleep(5)  
@@ -86,7 +89,7 @@ def generate_gate_enhanced():
                         cmd+='--test_task_num '
                         for m in range(len(class_num)):
                             cmd+='{} '.format(class_num[m])
-                        print(cmd)
+                        logger.info('{}', cmd)
                         p = Process(target=exe, args=(cmd,))
                         p.start()
                         time.sleep(5)  
@@ -127,7 +130,7 @@ def generate_gate_task():
                         cmd+='--test_task_num '
                         for m in range(len(class_num)):
                             cmd+='{} '.format(class_num[m])
-                        print(cmd)
+                        logger.info('{}', cmd)
                         p = Process(target=exe, args=(cmd,))
                         p.start()
                         time.sleep(5)  

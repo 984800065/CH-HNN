@@ -6,6 +6,7 @@ import argparse
 import torch
 import clip
 from tqdm import tqdm
+from logger_config import logger
 
 def setup_seed(seed):
     torch.manual_seed(seed)
@@ -61,8 +62,8 @@ def train_ann_epoch(model, preprocess, data_loader, save_path):
     labels_list = np.concatenate(labels_list, axis=0)
     np.save(save_path+'inputs.npy', embeddings_list)
     np.save(save_path+'labels.npy', labels_list)
-    print(embeddings_list.shape)
-    print(labels_list.shape)
+    logger.info('embeddings_list shape: {}', embeddings_list.shape)
+    logger.info('labels_list shape: {}', labels_list.shape)
 
 
 def get_clip():

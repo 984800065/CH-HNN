@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 import torch.functional as F
 
 from tqdm import tqdm
+import sys
+sys.path.append('..')
+from logger_config import logger
 
 
 def setup_seed(seed):
@@ -80,8 +83,8 @@ def train_ann_epoch(model, preprocess, data_loader):
     labels_list = np.concatenate(labels_list, axis=0)
     np.save('./embeddings/embeddings_tiny_imagenet.npy', embeddings_list)
     np.save('./embeddings/labels_tiny_imagenet.npy', labels_list)
-    print(embeddings_list.shape)
-    print(labels_list.shape)
+    logger.info('embeddings_list shape: {}', embeddings_list.shape)
+    logger.info('labels_list shape: {}', labels_list.shape)
 
 
 def get_clip():

@@ -1,6 +1,9 @@
 import torch
 from torch.utils.data import Dataset
 import numpy as np
+import sys
+sys.path.append('..')
+from logger_config import logger
 
 
 class Dataset(Dataset):
@@ -24,8 +27,8 @@ class Dataset(Dataset):
         self.inputs = torch.from_numpy(self.inputs).float()
         self.labels = torch.from_numpy(self.labels).long()
 
-        print('inputs: ', self.inputs.shape)
-        print('labels: ', self.labels.shape)
+        logger.info('inputs: {}', self.inputs.shape)
+        logger.info('labels: {}', self.labels.shape)
 
     def __len__(self):
         return len(self.inputs)

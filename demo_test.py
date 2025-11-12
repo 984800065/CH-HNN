@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import argparse
 import matplotlib.pyplot as plt
+from logger_config import logger
 
 parser = argparse.ArgumentParser(description='Test the Performance of Various Datasets.')
 
@@ -101,9 +102,9 @@ def test(snn_model, test_loader, device, ann, verbose = True):
     test_acc = round( 100. * float(correct) / (len(test_loader.dataset)), 2)
     
     if verbose :
-        print('Test accuracy: {}/{} ({:.2f}%)'.format(
+        logger.info('Test accuracy: {}/{} ({:.2f}%)', 
             correct, len(test_loader.dataset),
-            test_acc))
+            test_acc)
     
     return test_acc
 
@@ -111,15 +112,15 @@ def main():
     _, test_loader_list,_ = create_dataset(params)
     acc_all=[]
     for task_idx, task in enumerate(test_loader_list):
-        print('task_idx:', task_idx)
+        logger.info('task_idx: {}', task_idx)
         test_accuracy = test(snn_model, task, device, ann_trained)
         acc_all.append(test_accuracy)
     acc_all=np.array(acc_all)
     # np.save('./Results/acc_all_sample.npy', acc_all)
     # acc_5_class=np.average(acc_all.reshape(-1, 5), axis=1)
-    # print('Mean Accuracy:',acc_all, np.mean(acc_all), acc_5_class)
+    # logger.info('Mean Accuracy: {}, {}, {}', acc_all, np.mean(acc_all), acc_5_class)
 
-    print('Mean Accuracy:', acc_all, np.mean(acc_all))
+    logger.info('Mean Accuracy: {}, {}', acc_all, np.mean(acc_all))
 
     # 调用绘图函数
     plot_results(acc_all)
