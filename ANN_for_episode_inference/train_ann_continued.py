@@ -78,7 +78,7 @@ def get_dist(n_value):
 def get_gate_net():
     net = aux_net(inputs_size=args.inputs_size, hidden_size_list=[
                   args.n_dim, args.n_dim], channels=args.channels, n_value=args.n_value).cuda()
-    # net.load_state_dict(torch.load('/data1/sqq/Results/ANN_of_HMN_one_hot_20231026/exp_tinyimage_2024_random200/exp_gate{}/models/gate_net.pth'.format(args.n_dim)))
+    # net.load_state_dict(torch.load('./Results/ANN_of_HMN_one_hot_20231026/exp_tinyimage_2024_random200/exp_gate{}/models/gate_net.pth'.format(args.n_dim)))
     return net
 
 from torch.utils.data import Dataset, ConcatDataset

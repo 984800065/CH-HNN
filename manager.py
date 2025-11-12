@@ -25,12 +25,12 @@ def task_CH_HNN():
     gate_num_all=[5]
     meta_ac=['exp']#'exp' or 'sigmoid' or 'tanh'
     lambda_all=[1]
-    seed_all = [i for i in range(222,333,111)]
+    seed_all = [234]
     # noise_fac = ['0.50',]
     noise_num = [1]
     dataset_all=args.dataset_all#dataset='pMNIST'/'sMNIST'/'cifar100'/'tinyimage'/'dvsG'
-    neuron_model = ['EIF',]#['EIF','LIF','IF']
-    tau_all=[1,]
+    neuron_model = ['LIF',]#['EIF','LIF','IF']
+    tau_all=[0.9]
     scenario=args.scenario
     for i, meta in enumerate(meta_all):
         for j, gate_num in enumerate(gate_num_all):
@@ -46,9 +46,9 @@ def task_CH_HNN():
                                         cmd='python main.py --loss "ce" --out-off 0 --type-of-head "mask" '
                                         cmd+=' --scenario {}'.format(scenario)
                                         cmd+=' --meta-ac ' + activation_choice
-                                        # cmd+=' --optim "Adam" --net "ann" --norm "" --si --si-lambda {} '.format(labmi)
+                                        cmd+=' --optim "Adam" --net "ann" --norm "" --si --si-lambda {} '.format(labmi)
                                         # cmd+=' --net "ann" --norm "" --xdg --gate-prob 0.5'
-                                        cmd+=' --net "snn" --norm "bn" --optim "SGD" '
+                                        # cmd+=' --net "snn" --norm "bn" --optim "SGD" '
                                         # cmd+=' --optim "Adam" --net "ann" --norm "" --ewc --ewc-lambda {} '.format(labmi)
                                         cmd+=' --device {} '.format(gpu)
                                         cmd+=' --seed {} '.format(seedi)

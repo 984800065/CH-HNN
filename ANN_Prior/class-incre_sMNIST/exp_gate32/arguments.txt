@@ -1,4 +1,4 @@
-root_path /data1/sqq/Results/ANN_of_HMN/exp_cifar100_random10_epochs_60/exp_gate32/
+root_path ./Results/ANN_of_HMN/exp_cifar100_random10_epochs_60/exp_gate32/
 lr_s1 0.0001
 dataset ['sMNIST']
 class_num [10]

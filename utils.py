@@ -750,8 +750,8 @@ def create_dataset(args):
         elif args.dataset=='dvsG':
             frame_transform = tonic.transforms.ToFrame(sensor_size=tonic.datasets.DVSGesture.sensor_size, time_window=100000)
             # Chain the transforms
-            dset_train = tonic.datasets.DVSGesture(save_to='/data1/sqq/dataset/dvsG', transform=frame_transform, train=True)
-            dset_test = tonic.datasets.DVSGesture(save_to='/data1/sqq/dataset/dvsG', transform=frame_transform, train=False)
+            dset_train = tonic.datasets.DVSGesture(save_to='/home/dkr/data0/datasets/dvsG', transform=frame_transform, train=True)
+            dset_test = tonic.datasets.DVSGesture(save_to='/home/dkr/data0/datasets/dvsG', transform=frame_transform, train=False)
             for i in range(len(args.task_sequence)):
                 class_id = np.arange(task_num, args.task_sequence[i]+task_num)
                 indices_train = trans_indices(dset_train, class_id)

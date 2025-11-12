@@ -128,7 +128,7 @@ if args.seed is not None:
 
 date = datetime.now().strftime('%Y-%m-%d')
 time = datetime.now().strftime('%H-%M-%S')
-path = '/data1/sqq/Results/{}/'.format(args.dataset)+date+'/'+time+'_gpu'+str(args.device)
+path = './Results/{}/'.format(args.dataset)+date+'/'+time+'_gpu'+str(args.device)
 
 if not(os.path.exists(path)):
     os.makedirs(path)
