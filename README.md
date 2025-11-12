@@ -56,6 +56,12 @@ Results are similar to the above:
 To train CH-HNN model, run:
 ```bash
 python manager.py --ep-inference --dataset 'cifar100' --scenario 'class-incre'
+
+python manager.py --task-num 4 --class-per-task 20 --ep-inference --dataset cifar100 --scenario class-incre
+
+python manager.py --task-num 9 --class-per-task 10 --ep-inference --dataset cifar100 --scenario class-incre
+
+python manager.py --task-num 19 --class-per-task 5 --ep-inference --dataset cifar100 --scenario class-incre
 ```
 Pretrained ANN models are available in the ANN_Prior directory for the following datasets:
 

@@ -128,9 +128,11 @@ if args.seed is not None:
     random.seed(args.seed)
     torch.backends.cudnn.deterministic=True
 
+model_selected = "si" if args.si else "ewc" if args.ewc else "ch-hnn"
+
 date = datetime.now().strftime('%Y-%m-%d')
 time = datetime.now().strftime('%H-%M-%S')
-path = './Results/{}/'.format(args.dataset)+date+'/'+time+'_gpu'+str(args.device)
+path = './Results/{}/'.format(args.dataset) + date + '/'+ f"{model_selected}_{args.dataset}_step_{args.task_num + 1}/"
 
 if not(os.path.exists(path)):
     os.makedirs(path)
@@ -328,9 +330,11 @@ dkr_results["avg_acc_mean"] = np.mean(dkr_results["avg_acc"])
 dkr_results["last_acc"] = dkr_results["last_acc_list_per_stage"][f"step_{len(train_loader_list)}"]
 dkr_results["last_acc_mean"] = np.mean(dkr_results["last_acc"])
 
+model_selected = "si" if args.si else "ewc" if args.ewc else "ch-hnn"
+
 json.dump(
     dkr_results,
-    open(path + f"/final_results_si_{args.dataset}_step_{len(train_loader_list)}.json", 'w'),
+    open(path + f"/final_results_{model_selected}_{args.dataset}_step_{len(train_loader_list)}.json", 'w'),
     indent=4,
     ensure_ascii=False
 )
